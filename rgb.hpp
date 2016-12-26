@@ -1,0 +1,62 @@
+//
+//  rgb.hpp
+//  SIMDLAB
+//
+//  Created by Nancy Fan on 12/26/16.
+//  Copyright © 2016 Nancy Fan. All rights reserved.
+//
+
+#ifndef rgb_hpp
+#define rgb_hpp
+
+#include <stdio.h>
+#include <stdint.h>
+#include <iostream>
+
+class RGB{
+public:
+    int32_t width;
+    int32_t height;
+    int64_t size;
+    uint8_t* pR8;
+    uint8_t* pG8;
+    uint8_t* pB8;
+    int16_t* pR16;
+    int16_t* pG16;
+    int16_t* pB16;
+    
+    RGB(int32_t _width, int32_t _height) {
+        width = _width;
+        height = _height;
+        size = width * height;
+        pR8 = new uint8_t[size];
+        pG8 = new uint8_t[size];
+        pB8 = new uint8_t[size];
+        pR16 = new int16_t[size];
+        pG16 = new int16_t[size];
+        pB16 = new int16_t[size];
+        
+        memset(pR8, 0, size);
+        memset(pG8, 0, size);
+        memset(pB8, 0, size);
+    }
+    
+    ~RGB() {
+        delete[] pR8;
+        delete[] pG8;
+        delete[] pB8;
+        delete[] pR16;
+        delete[] pG16;
+        delete[] pB16;
+    }
+    
+    void write(FILE* fp) const;
+    void u8_to_s16() const;
+    void s16_to_u8() const;
+    int32_t getWidth() const { return width;};
+    int32_t getHeight() const { return height;};
+    
+};
+
+
+#endif /* rgb_hpp */
