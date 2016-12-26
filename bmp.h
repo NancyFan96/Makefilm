@@ -18,26 +18,48 @@ typedef unsigned char BYTE;
 
 typedef struct tagBITMAPFILEHEADER
 {
-    WORD bfType = 19778;
-    DWORD bfSize = 6220854;
-    WORD bfReserved1 = 0;
-    WORD bfReserved2 = 0;
-    DWORD bfOffBits = 54;
+    WORD bfType;
+    DWORD bfSize;
+    WORD bfReserved1;
+    WORD bfReserved2;
+    DWORD bfOffBits;
+    
+    tagBITMAPFILEHEADER(){
+        bfType = 19778;
+        bfSize = 6220854;
+        bfReserved1 = 0;
+        bfReserved2 = 0;
+        bfOffBits = 54;
+    }
 }t_BMPfileheader;
 
 typedef struct tagBITMAPINFOHEADER
 {
-    DWORD biSize = 40;
-    LONG biWidth = 1920;
-    LONG biHeight = 1080;
-    WORD biPlanes = 1;
-    WORD biBitCount = 24;
-    DWORD biCompression = 0;
-    DWORD biSizeImage = 6220800;
-    LONG biXPelsPerMeter = 2835;
-    LONG biYPelsPerMeter = 2835;
-    DWORD biClrUsed = 0;
-    DWORD biClrImportant = 0;
+    DWORD biSize;
+    LONG biWidth;
+    LONG biHeight;
+    WORD biPlanes;
+    WORD biBitCount;
+    DWORD biCompression;
+    DWORD biSizeImage;
+    LONG biXPelsPerMeter;
+    LONG biYPelsPerMeter;
+    DWORD biClrUsed;
+    DWORD biClrImportant;
+    
+    tagBITMAPINFOHEADER(){
+        biSize = 40;
+        biWidth = 1920;
+        biHeight = 1080;
+        biPlanes = 1;
+        biBitCount = 24;
+        biCompression = 0;
+        biSizeImage = 6220800;
+        biXPelsPerMeter = 2835;
+        biYPelsPerMeter = 2835;
+        biClrUsed = 0;
+        biClrImportant = 0;
+    }
 }t_BMPinfoheader;
 #pragma pack()
 
