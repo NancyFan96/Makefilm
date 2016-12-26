@@ -36,9 +36,9 @@ public:
         pG16 = new int16_t[size];
         pB16 = new int16_t[size];
         
-        memset(pR8, 0, size);
-        memset(pG8, 0, size);
-        memset(pB8, 0, size);
+        memset(pR8, 0, size * sizeof(uint8_t));
+        memset(pG8, 0, size * sizeof(uint8_t));
+        memset(pB8, 0, size * sizeof(uint8_t));
     }
     
     ~RGB() {

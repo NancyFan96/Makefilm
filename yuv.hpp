@@ -36,9 +36,9 @@ public:
         pU16 = new int16_t[size >> 2];
         pV16 = new int16_t[size >> 2];
        
-        memset(pY8, 0, size);
-        memset(pU8, 0, size >> 2);
-        memset(pV8, 0, size >> 2);
+        memset(pY8, 0, size * sizeof(uint8_t));
+        memset(pU8, 0, (size >> 2) * sizeof(uint8_t));
+        memset(pV8, 0, (size >> 2) * sizeof(uint8_t));
     }
     
     ~YUV() {

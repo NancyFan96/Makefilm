@@ -13,8 +13,8 @@ void YUV::read(FILE * fp) const {
 
     fread(buf, sizeof(char), size + (size >> 1), fp);
 
-    memcpy(pY8, buf, size * sizeof(char));
-    memcpy(pU8, buf + size, (size >> 2) * sizeof(char));
+    memcpy(pY8,                      buf, size * sizeof(char));
+    memcpy(pU8,               buf + size, (size >> 2) * sizeof(char));
     memcpy(pV8, buf + size + (size >> 2), (size >> 2) * sizeof(char));
     u8_to_s16();
     
@@ -25,8 +25,8 @@ void YUV::write(FILE * fp) const{
     char * buf = new char[size + (size >> 1)];
     
     s16_to_u8();
-    memcpy(buf, pY8,  size * sizeof(char));
-    memcpy(buf + size, pU8,  (size >> 2) * sizeof(char));
+    memcpy(                     buf, pY8,  size * sizeof(char));
+    memcpy(              buf + size, pU8,  (size >> 2) * sizeof(char));
     memcpy(buf + size + (size >> 2), pV8,  (size >> 2) * sizeof(char));
     
     fwrite(buf, sizeof(char), size + (size >> 1), fp);
