@@ -11,6 +11,9 @@
 
 using namespace std;
 
+extern FILE *fout01, *fout02;
+extern FILE *foutcheck;
+
 int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2){
     clock_t begin_time, total_time;
     begin_time = clock();
@@ -52,10 +55,10 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
         
         total_time += clock() - core_time;
         //CHECK_RGB.write(foutcheck);
-        OUT_YUV.write(fout1);
+        OUT_YUV.write(fout01);
     }// process end
     
-    fclose(fout1);
+    fclose(fout01);
     
     cout << "Alpha Blending with dem1.yuv, output file is \"alpha1.yuv\":" <<endl;
     cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
@@ -105,10 +108,10 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
         
         total_time += clock() - core_time;
         //CHECK_RGB.write(foutcheck);
-        OUT_YUV.write(fout2);
+        OUT_YUV.write(fout02);
     }// process end
     
-    fclose(fout2);
+    fclose(fout02);
     
     cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha2.yuv\":" <<endl;
     cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;

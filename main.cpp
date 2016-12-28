@@ -18,10 +18,21 @@ extern const int SIZE;
 //extern int mode;
 extern const char infile1[20];
 extern const char infile2[20];
-extern const char outfile1[20];
-extern const char outfile2[20];
+extern const char outfile01[20];
+extern const char outfile02[20];
+extern const char outfile11[20];
+extern const char outfile12[20];
+extern const char outfile21[20];
+extern const char outfile22[20];
+extern const char outfile31[20];
+extern const char outfile32[20];
 
-FILE *fin1, *fin2, *fout1, *fout2;
+
+FILE *fin1, *fin2;
+FILE *fout01, *fout02;
+FILE *fout11, *fout12;
+FILE *fout21, *fout22;
+FILE *fout31, *fout32;
 FILE *foutcheck;
 
 void help()
@@ -70,26 +81,56 @@ int main(int argc, char* argv[])
     DEM2_YUV.read(fin2);
     pclose(fin2);
 
-    if((fout1 = fopen(outfile1, "wb")) == NULL){
-        cout << "OUTPUT FILE 1 ERROR." << endl;
+    if((fout01 = fopen(outfile01, "wb")) == NULL){
+        cout << "OUTPUT FILE 01 ERROR." << endl;
         return -1;
     }
-    if((fout2 = fopen(outfile2, "wb")) == NULL){
-        cout << "OUTPUT FILE 2 ERROR." << endl;
+    if((fout02 = fopen(outfile02, "wb")) == NULL){
+        cout << "OUTPUT FILE 02 ERROR." << endl;
         return -1;
     }
+    
+    if((fout11 = fopen(outfile11, "wb")) == NULL){
+        cout << "OUTPUT FILE 11 ERROR." << endl;
+        return -1;
+    }
+    if((fout12 = fopen(outfile12, "wb")) == NULL){
+        cout << "OUTPUT FILE 12 ERROR." << endl;
+        return -1;
+    }
+
+    if((fout21 = fopen(outfile21, "wb")) == NULL){
+        cout << "OUTPUT FILE 21 ERROR." << endl;
+        return -1;
+    }
+    if((fout22 = fopen(outfile22, "wb")) == NULL){
+        cout << "OUTPUT FILE 22 ERROR." << endl;
+        return -1;
+    }
+
+    if((fout31 = fopen(outfile31, "wb")) == NULL){
+        cout << "OUTPUT FILE 31 ERROR." << endl;
+        return -1;
+    }
+    if((fout32 = fopen(outfile32, "wb")) == NULL){
+        cout << "OUTPUT FILE 32 ERROR." << endl;
+        return -1;
+    }
+
     
     if((foutcheck = fopen("check.bmp", "wb")) == NULL){
         cout << "OUTPUT FILE checkfile ERROR." << endl;
         return -1;
     }
     
-    cout << "start processing..." << endl;
+    cout << "Start Making Films..." << endl;
     
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+
+    cout << "\nFilms have made! Enjoy them!\nBye~\n" << endl;
 
     
     return 0;
