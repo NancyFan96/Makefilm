@@ -19,21 +19,30 @@ using namespace std;
 extern FILE *fout11, *fout12;
 extern FILE *foutcheck1, foutcheck2;
 
-// YUV2RGB
+/* YUV2RGB
+ * R = 1.164383 * (Y - 16) + 1.596027*(V - 128)
+ * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
+ * G = 1.164383 * (Y - 16) – 0.391762*(U - 128) – 0.812968*(V - 128)
+ */
 // const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
+const __m64 YConst16 = _mm_set_pi16(16, 16, 16, 16);
 const __m64 UVConst128 = _mm_set_pi16(128, 128, 128, 128);
-const int16_t YUV2R[3] = {0,                         0, (int16_t)(0.140*(1<<16))};
-const int16_t YUV2G[3] = {0, (int16_t)(-0.394*(1<<16)), (int16_t)(-0.518*(1<<16))};
-const int16_t YUV2B[3] = {0,  (int16_t)(0.032*(1<<16)),                         0};
+const int16_t YUV2R[3] = {(int16_t)0.164383*(1<<16),                         0, (int16_t)(0.596027*(1<<16))};
+const int16_t YUV2G[3] = {(int16_t)0.164383*(1<<16), (int16_t)(-0.391762*(1<<16)), (int16_t)(-0.812968*(1<<16))};
+const int16_t YUV2B[3] = {(int16_t)0.164383*(1<<16),  (int16_t)(0.017232*(1<<16)),                         0};
 const __m64 V2R = _mm_set_pi16(YUV2R[2], YUV2R[2], YUV2R[2], YUV2R[2]);       // 0.140
 const __m64 U2G = _mm_set_pi16(YUV2G[1], YUV2G[1], YUV2G[1], YUV2G[1]);       //-0.394
 const __m64 V2G = _mm_set_pi16(YUV2G[2], YUV2G[2], YUV2G[2], YUV2G[2]);       //-0.518
 const __m64 U2B = _mm_set_pi16(YUV2B[1], YUV2B[1], YUV2B[1], YUV2B[1]);       // 0.032
 
-// RGB2YUV
-const int16_t RGB2Y[3] = {(int16_t)(0.299*(1<<16)), (int16_t)(0.587*(1<<16)), (int16_t)(0.114*(1<<16))};
-const int16_t RGB2U[3] = {(int16_t)(-0.147*(1<<16)), (int16_t)(-0.289*(1<<16)), (int16_t)(0.436*(1<<16))};
-const int16_t RGB2V[3] = {(int16_t)(0.615*(1<<16)), (int16_t)(-0.515*(1<<16)), (int16_t)(-0.100*(1<<16))};
+/* RGB2YUV
+ * Y= 0.256788*R + 0.504129*G + 0.097906*B + 16
+ * U= -0.148223*R - 0.290993*G + 0.439216*B + 128
+ * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
+ */
+const int16_t RGB2Y[3] = {(int16_t)(0.256788*(1<<16)), (int16_t)(0.504129*(1<<16)), (int16_t)(0.097906*(1<<16))};
+const int16_t RGB2U[3] = {(int16_t)(-0.148223*(1<<16)), (int16_t)(-0.290993*(1<<16)), (int16_t)(0.439216*(1<<16))};
+const int16_t RGB2V[3] = {(int16_t)(0.439216*(1<<16)), (int16_t)(-0.367788*(1<<16)), (int16_t)(-0.071427*(1<<16))};
 const __m64 R2Y = _mm_set_pi16(RGB2Y[0], RGB2Y[0], RGB2Y[0], RGB2Y[0]);         // 0.299
 const __m64 G2Y = _mm_set_pi16(RGB2Y[1], RGB2Y[1], RGB2Y[1], RGB2Y[1]);         // 0.587
 const __m64 B2Y = _mm_set_pi16(RGB2Y[2], RGB2Y[2], RGB2Y[2], RGB2Y[2]);         // 0.114
@@ -76,7 +85,8 @@ void yuv2rgb_with_mmx(YUV & yuv, RGB & rgb){
         dstG[i] = _mm_setzero_si64();
         dstB[i] = _mm_setzero_si64();
         
-        tmp = _mm_adds_pi16(tmp, Yp16[i]);
+        tmp = _mm_add_pi16(tmp, Yp16[i]);
+        tmp = _mm_sub_pi16(tmp, YConst16);
         dstR[i] = _mm_add_pi16(dstR[i], tmp);       // R = Y + ...
         dstG[i] = _mm_add_pi16(dstG[i], tmp);       // G = Y + ...
         dstB[i] = _mm_add_pi16(dstB[i], tmp);       // B = Y + ...
@@ -176,6 +186,7 @@ void rgb2yuv_with_mmx(YUV & yuv, RGB & rgb){
         dstY[i] = _mm_add_pi16(dstY[i], tmp);
         tmp = _mm_mulhi_pi16(srcB[i], B2Y);
         dstY[i] = _mm_add_pi16(dstY[i], tmp);
+        dstY[i] = _mm_add_pi16(dstY[i], YConst16);
     }
     
     

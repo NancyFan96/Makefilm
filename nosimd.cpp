@@ -14,12 +14,17 @@ using namespace std;
 extern FILE *fout01, *fout02;
 extern FILE *foutcheck1, *foutcheck2;
 
+/* 
+ * R = 1.164383 * (Y - 16) + 1.596027*(V - 128)
+ * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
+ * G = 1.164383 * (Y - 16) – 0.391762*(U - 128) – 0.812968*(V - 128)
+ */
 void yuv2rgb_without_simd(YUV & yuv, RGB & rgb){
     for(int iY = 0; iY < yuv.size; iY++){
         int iUV = yuv.getBlockID(iY);
-        rgb.pR16[iY] = yuv.pY16[iY] + (int)(1.140*(yuv.pV16[iUV] - 128));
-        rgb.pG16[iY] = yuv.pY16[iY] + (int)(-0.394*(yuv.pU16[iUV] - 128) - 0.518*(yuv.pV16[iUV] - 128));
-        rgb.pB16[iY] = yuv.pY16[iY] + (int)(2.032*(yuv.pU16[iUV] - 128));
+        rgb.pR16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (1.596027 * (yuv.pV16[iUV] - 128));
+        rgb.pG16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (-0.391762 * (yuv.pU16[iUV] - 128)) + (-0.812968*(yuv.pV16[iUV] - 128));
+        rgb.pB16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (2.017232*(yuv.pU16[iUV] - 128));
     }
 }
 
@@ -41,14 +46,19 @@ void blending_without_simd(RGB & rgb1, RGB & rgb2, int A, bool mode){
     }
 }
 
+/*
+ * Y= 0.256788*R + 0.504129*G + 0.097906*B + 16
+ * U= -0.148223*R - 0.290993*G + 0.439216*B + 128
+ * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
+ */
 void rgb2yuv_without_simd(YUV & yuv, RGB & rgb){
     for(int row = 0, iY = 0, iUV = 0; row < yuv.height; row++){
         for(int col = 0; col < yuv.width; col++, iY++){
-            yuv.pY16[iY] = 0.299*rgb.pR16[iY] + 0.587*rgb.pG16[iY] + 0.114*rgb.pB16[iY];
+            yuv.pY16[iY] = 0.256788*rgb.pR16[iY] + 0.504129*rgb.pG16[iY] + 0.097906*rgb.pB16[iY] + 16;
             
             if((row&1)&&(col&1)){
-                yuv.pU16[iUV] = -0.147*rgb.pR16[iY] - 0.289*rgb.pG16[iY] + 0.436*rgb.pB16[iY] + 128;
-                yuv.pV16[iUV] = 0.615*rgb.pR16[iY] - 0.515*rgb.pG16[iY] - 0.100*rgb.pB16[iY] + 128;
+                yuv.pU16[iUV] = -0.148223*rgb.pR16[iY] - 0.2909931*rgb.pG16[iY] + 0.439216*rgb.pB16[iY] + 128;
+                yuv.pV16[iUV] = 0.439216*rgb.pR16[iY] - 0.367788*rgb.pG16[iY] - 0.071427*rgb.pB16[iY] + 128;
                 iUV++;
             }
         }
