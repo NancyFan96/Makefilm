@@ -18,9 +18,9 @@ public:
     int32_t width;
     int32_t height;
     int64_t size;
-    uint8_t* pY8;
-    uint8_t* pU8;
-    uint8_t* pV8;
+    int8_t* pY8;
+    int8_t* pU8;
+    int8_t* pV8;
     int16_t* pY16;
     int16_t* pU16;
     int16_t* pV16;
@@ -29,16 +29,16 @@ public:
         width = _width;
         height = _height;
         size = width * height;
-        pY8 = new uint8_t[size];
-        pU8 = new uint8_t[size >> 2];
-        pV8 = new uint8_t[size >> 2];
+        pY8 = new int8_t[size];
+        pU8 = new int8_t[size >> 2];
+        pV8 = new int8_t[size >> 2];
         pY16 = new int16_t[size];
         pU16 = new int16_t[size >> 2];
         pV16 = new int16_t[size >> 2];
        
-        memset(pY8, 0, size * sizeof(uint8_t));
-        memset(pU8, 0, (size >> 2) * sizeof(uint8_t));
-        memset(pV8, 0, (size >> 2) * sizeof(uint8_t));
+        memset(pY8, 0, size * sizeof(int8_t));
+        memset(pU8, 0, (size >> 2) * sizeof(int8_t));
+        memset(pV8, 0, (size >> 2) * sizeof(int8_t));
     }
     
     ~YUV() {
