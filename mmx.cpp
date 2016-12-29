@@ -28,7 +28,7 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
     
     // YUV2RGB
     // const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
-    const __m64 UVsub128 = _mm_set_pi16(128, 128, 128, 128);
+    const __m64 UVConst128 = _mm_set_pi16(128, 128, 128, 128);
     const int16_t YUV2R[3] = {0,                         0, (int16_t)(0.140*(1<<16))};
     const int16_t YUV2G[3] = {0, (int16_t)(-0.394*(1<<16)), (int16_t)(-0.518*(1<<16))};
     const int16_t YUV2B[3] = {0,  (int16_t)(0.032*(1<<16)),                         0};
@@ -90,7 +90,7 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
     
     //const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
     // V->R, U,V->G, U->B
-    for (int A = 100; A < 256; A += 3) {
+    for (int A = 1; A < 256; A += 3) {
         clock_t core_time = clock();
         for(int i = 0; i < nloop; i++){
             /*************** YUV2RGB ****************/
@@ -98,29 +98,30 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
             dstR[i] = _mm_setzero_si64();
             dstG[i] = _mm_setzero_si64();
             dstB[i] = _mm_setzero_si64();
+            
             tmp = _mm_adds_pi16(tmp, Yp16_1[i]);
-            dstR[i] = _mm_adds_pi16(dstR[i], tmp);       // R = Y + ...
-            dstG[i] = _mm_adds_pi16(dstG[i], tmp);       // G = Y + ...
-            dstB[i] = _mm_adds_pi16(dstB[i], tmp);       // B = Y + ...
+            dstR[i] = _mm_add_pi16(dstR[i], tmp);       // R = Y + ...
+            dstG[i] = _mm_add_pi16(dstG[i], tmp);       // G = Y + ...
+            dstB[i] = _mm_add_pi16(dstB[i], tmp);       // B = Y + ...
             
             // Get R
-            tmpV = _mm_sub_pi16(Vp16_1[i], UVsub128);   // (V-128)
-            dstR[i] = _mm_adds_pi16(dstR[i], tmpV);       // R += (V-128)
+            tmpV = _mm_sub_pi16(Vp16_1[i], UVConst128);   // (V-128)
+            dstR[i] = _mm_add_pi16(dstR[i], tmpV);      // R += (V-128)
             tmp = _mm_mulhi_pi16(tmpV, V2R);            // 0.140*(V-128)
-            dstR[i] = _mm_adds_pi16(dstR[i], tmp);       // R += 0.140*(V-128)
+            dstR[i] = _mm_add_pi16(dstR[i], tmp);      // R += 0.140*(V-128)
             
             // Get G
-            tmpU = _mm_sub_pi16(Up16_1[i], UVsub128);
+            tmpU = _mm_sub_pi16(Up16_1[i], UVConst128);
             tmp = _mm_mulhi_pi16(tmpU, U2G);
-            dstG[i] = _mm_adds_pi16(dstG[i], tmp);
+            dstG[i] = _mm_add_pi16(dstG[i], tmp);
             tmp = _mm_mulhi_pi16(tmpV, V2G);
-            dstG[i] = _mm_adds_pi16(dstG[i], tmp);
+            dstG[i] = _mm_add_pi16(dstG[i], tmp);
             
             // Get B
             tmp = _mm_mulhi_pi16(tmpU, U2B);
-            dstB[i] = _mm_adds_pi16(dstB[i], tmp);
+            dstB[i] = _mm_add_pi16(dstB[i], tmp);
             tmp = _mm_slli_si64(tmpU, 1);
-            dstB[i] = _mm_adds_pi16(dstB[i], tmp);
+            dstB[i] = _mm_add_pi16(dstB[i], tmp);
             
             
             /*************** Blending ****************/
@@ -128,10 +129,17 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
             __m64 RR, GG, BB;
             __m64 alpha64 = _mm_set_pi16((int16_t)A, (int16_t)A, (int16_t)A, (int16_t)A);
             RR = _mm_mullo_pi16(dstR[i], alpha64);
+            RR = _mm_srli_pi16(RR, 8);
             GG = _mm_mullo_pi16(dstG[i], alpha64);
+            GG = _mm_srli_pi16(GG, 8);
             BB = _mm_mullo_pi16(dstB[i], alpha64);
+            BB = _mm_srli_pi16(BB, 8);
             
             /*************** RGB2YUV ****************/
+            dstY[i] = _mm_setzero_si64();
+            dupU_[i] = _mm_setzero_si64();
+            dupV_[i] = _mm_setzero_si64();
+            
             // Get Y
             tmp = _mm_mulhi_pi16(RR, R2Y);
             dstY[i] = _mm_adds_pi16(dstY[i], tmp);
@@ -146,7 +154,8 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
             tmp = _mm_mulhi_pi16(GG, G2U);
             dupU_[i] = _mm_adds_pi16(dupU_[i], tmp);
             tmp = _mm_mulhi_pi16(BB, B2U);
-            dupU_[i] = _mm_adds_pi16(dupU_[i], tmp);
+            dupU_[i] = _mm_add_pi16(dupU_[i], tmp);
+            dupU_[i] = _mm_adds_pi16(dupU_[i], UVConst128);
             
             // Get V
             tmp = _mm_mulhi_pi16(RR, R2V);
@@ -154,9 +163,10 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
             tmp = _mm_mulhi_pi16(GG, G2V);
             dupV_[i] = _mm_adds_pi16(dupV_[i], tmp);
             tmp = _mm_mulhi_pi16(BB, B2V);
-            dupV_[i] = _mm_adds_pi16(dupV_[i], tmp);
+            dupV_[i] = _mm_add_pi16(dupV_[i], tmp);
+            dupV_[i] = _mm_adds_pi16(dupU_[i], UVConst128);
             
-            int iY = (i << 2);
+            int iY = (i << 2) + 3;
             if(((iY/DEM1_YUV.width)&1)&&((iY%DEM1_YUV.width)&1)){
                 int iUV = DEM1_YUV.getBlockID(iY);
                 OUT_YUV.pU16[iUV] = (int16_t)_mm_cvtsi64_si32(dupU_[i]);

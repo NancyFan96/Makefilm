@@ -35,6 +35,8 @@ FILE *fout21, *fout22;
 FILE *fout31, *fout32;
 FILE *foutcheck;
 
+#define RESERVE
+
 void help()
 {
     printf("Use dem1.yuv, dem1.yuv to process...\n");
@@ -80,7 +82,7 @@ int main(int argc, char* argv[])
     }
     DEM2_YUV.read(fin2);
     pclose(fin2);
-/*
+#ifndef RESERVE
     if((fout01 = fopen(outfile01, "wb")) == NULL){
         cout << "OUTPUT FILE 01 ERROR." << endl;
         return -1;
@@ -89,7 +91,7 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 02 ERROR." << endl;
         return -1;
     }
- */   
+#endif
     if((fout11 = fopen(outfile11, "wb")) == NULL){
         cout << "OUTPUT FILE 11 ERROR." << endl;
         return -1;
@@ -118,14 +120,16 @@ int main(int argc, char* argv[])
     }
 
     
-    if((foutcheck = fopen("check.bmp", "wb")) == NULL){
+    if((foutcheck = fopen("output/check.bmp", "wb")) == NULL){
         cout << "OUTPUT FILE checkfile ERROR." << endl;
         return -1;
     }
     
     cout << "Start Making Films..." << endl;
-    
-    //process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+  
+#ifndef RESERVE
+    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+#endif
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);

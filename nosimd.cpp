@@ -50,7 +50,8 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
 
         
         total_time += clock() - core_time;
-        //CHECK_RGB.write(foutcheck);
+        if(A == 253)
+        CHECK_RGB.write(foutcheck);
         OUT_YUV.write(fout01);
     }// process end
     
