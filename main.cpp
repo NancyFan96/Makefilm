@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     }
     DEM2_YUV.read(fin2);
     pclose(fin2);
-
+/*
     if((fout01 = fopen(outfile01, "wb")) == NULL){
         cout << "OUTPUT FILE 01 ERROR." << endl;
         return -1;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 02 ERROR." << endl;
         return -1;
     }
-    
+ */   
     if((fout11 = fopen(outfile11, "wb")) == NULL){
         cout << "OUTPUT FILE 11 ERROR." << endl;
         return -1;
@@ -125,8 +125,8 @@ int main(int argc, char* argv[])
     
     cout << "Start Making Films..." << endl;
     
-    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
-    //process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+    //process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+    process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
 
