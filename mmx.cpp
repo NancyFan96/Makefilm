@@ -9,6 +9,10 @@
 #include "system.h"
 #include "yuv.hpp"
 #include "rgb.hpp"
+// Header for MMX
+#include <mmintrin.h>
+#include <emmintrin.h>
+
 
 using namespace std;
 
@@ -22,7 +26,23 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
     
     cout << "\nMMX..." << endl;
 
+    int nloop = DEM1_YUV.size >> 2;
+    __m64 * Yp16_1 = (__m64 *)DEM1_YUV.pY16;
+    __m64 * Up16_1 = (__m64 *)DEM1_YUV.pU16;
+    __m64 * Vp16_1 = (__m64 *)DEM1_YUV.pV16;
+    const __m64 sub128 = _mm_set_pi16(128, 128, 128, 128);
     
+    __m64 tmp;
+    
+    _mm_empty();
+    
+    
+    for (int A = 1; A < 256; A += 3) {
+        clock_t core_time = clock();
+        for(int i = 0; i < nloop; i++){
+            
+        }
+    }
     
     
     
@@ -32,8 +52,7 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
     for(int A = 1; A < 256; A += 3){
         int iY = 0, tmp;
         clock_t core_time = clock();
-        for(int row = 0; row < DEM1_YUV.height; row++){
-            for(int col = 0; col < DEM1_YUV.width; col++){
+        for(int iY = 0; iY < DEM1_YUV.size; iY++){
                 int iUV = DEM1_YUV.getBlockID(iY);
                 tmp = DEM1_YUV.pY16[iY] + (int)(1.140*(DEM1_YUV.pV16[iUV] - 128));
                 CHECK_RGB.pR16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
@@ -50,13 +69,10 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
                 
                 OUT_YUV.pY16[iY] = 0.299*RR + 0.587*GG + 0.114*BB;
                 
-                if((row&1)&&(col&1)){
+                if(((iY/DEM1_YUV.width)&1)&&((iY%DEM1_YUV.width)&1)){
                     OUT_YUV.pU16[iUV] = -0.147*RR - 0.289*GG + 0.436*BB + 128;
                     OUT_YUV.pV16[iUV] = 0.615*RR - 0.515*GG - 0.100*BB + 128;
                 }
-                
-                iY++;
-            }
         }// get one picture
         
         total_time += clock() - core_time;

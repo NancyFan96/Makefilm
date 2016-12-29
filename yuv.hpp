@@ -54,8 +54,6 @@ public:
     void write(FILE* fp) const;
     void u8_to_s16() const;
     void s16_to_u8() const;
-    int32_t getWidth() const { return width;};
-    int32_t getHeight() const { return height;};
     int getBlockID(int iY) const { return (iY/(width*2)*(width/2) + (iY%width)/2);}
     
 };

@@ -23,34 +23,31 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
 
     
     for(int A = 1; A < 256; A += 3){
-        int iY = 0, iUV = 0, tmp;
+        int tmp;
         clock_t core_time = clock();
-        for(int row = 0; row < DEM1_YUV.height; row++){
-            for(int col = 0; col < DEM1_YUV.width; col++){
-                int iUV = DEM1_YUV.getBlockID(iY);
-                tmp = DEM1_YUV.pY16[iY] + (int)(1.140*(DEM1_YUV.pV16[iUV] - 128));
-                CHECK_RGB.pR16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
-                
-                tmp = DEM1_YUV.pY16[iY] + (int)(-0.394*(DEM1_YUV.pU16[iUV] - 128) - 0.518*(DEM1_YUV.pV16[iUV] - 128));
-                CHECK_RGB.pG16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
-                
-                tmp = DEM1_YUV.pY16[iY] + (int)(2.032*(DEM1_YUV.pU16[iUV] - 128));
-                CHECK_RGB.pB16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
-                
-                int RR = A * (CHECK_RGB.pR16[iY]) /256;
-                int GG = A * (CHECK_RGB.pG16[iY]) /256;
-                int BB = A * (CHECK_RGB.pB16[iY]) /256;
-                
-                OUT_YUV.pY16[iY] = 0.299*RR + 0.587*GG + 0.114*BB;
-                
-                if((row&1)&&(col&1)){
-                    OUT_YUV.pU16[iUV] = -0.147*RR - 0.289*GG + 0.436*BB + 128;
-                    OUT_YUV.pV16[iUV] = 0.615*RR - 0.515*GG - 0.100*BB + 128;
-                }
-                
-                iY++;
+        for(int iY = 0; iY < DEM1_YUV.size; iY++){
+            int iUV = DEM1_YUV.getBlockID(iY);
+            tmp = DEM1_YUV.pY16[iY] + (int)(1.140*(DEM1_YUV.pV16[iUV] - 128));
+            CHECK_RGB.pR16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
+            
+            tmp = DEM1_YUV.pY16[iY] + (int)(-0.394*(DEM1_YUV.pU16[iUV] - 128) - 0.518*(DEM1_YUV.pV16[iUV] - 128));
+            CHECK_RGB.pG16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
+            
+            tmp = DEM1_YUV.pY16[iY] + (int)(2.032*(DEM1_YUV.pU16[iUV] - 128));
+            CHECK_RGB.pB16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
+            
+            int RR = A * (CHECK_RGB.pR16[iY]) /256;
+            int GG = A * (CHECK_RGB.pG16[iY]) /256;
+            int BB = A * (CHECK_RGB.pB16[iY]) /256;
+            
+            OUT_YUV.pY16[iY] = 0.299*RR + 0.587*GG + 0.114*BB;
+            
+            if(((iY/DEM1_YUV.width)&1)&&((iY%DEM1_YUV.width)&1)){
+                OUT_YUV.pU16[iUV] = -0.147*RR - 0.289*GG + 0.436*BB + 128;
+                OUT_YUV.pV16[iUV] = 0.615*RR - 0.515*GG - 0.100*BB + 128;
             }
         }// get one picture
+
         
         total_time += clock() - core_time;
         //CHECK_RGB.write(foutcheck);
@@ -65,10 +62,9 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
     
     total_time = 0;
     for(int A = 1; A < 256; A += 3){
-        int iY = 0, iUV = 0, tmp;
+        int tmp;
         clock_t core_time = clock();
-        for(int row = 0; row < DEM1_YUV.height; row++){
-            for(int col = 0; col < DEM1_YUV.width; col++){
+        for(int iY = 0; iY < DEM1_YUV.size; iY++){
                 int iUV = DEM1_YUV.getBlockID(iY);
                 tmp = DEM1_YUV.pY16[iY] + (int)(1.140*(DEM1_YUV.pV16[iUV] - 128));
                 CHECK_RGB.pR16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
@@ -95,13 +91,11 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
                 
                 OUT_YUV.pY16[iY] = 0.299*RR + 0.587*GG + 0.114*BB;
                 
-                if((row&1)&&(col&1)){
+                if(((iY/DEM1_YUV.width)&1)&&((iY%DEM1_YUV.width)&1)){
                     OUT_YUV.pU16[iUV] = -0.147*RR - 0.289*GG + 0.436*BB + 128;
                     OUT_YUV.pV16[iUV] = 0.615*RR - 0.515*GG - 0.100*BB + 128;
                 }
                 
-                iY++;
-            }
         }// get one picture
         
         total_time += clock() - core_time;
