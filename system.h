@@ -39,5 +39,14 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB,
 int process_with_sse(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2, bool mode);
 int process_with_avx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2, bool mode);
 
+inline uint8_t format(int16_t input) {
+    if (input > 255) {
+        return (uint8_t)255;
+    }
+    if (input < 0) {
+        return (uint8_t)0;
+    }
+    return (uint8_t)input;
+}
 
 #endif /* system_h */

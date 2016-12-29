@@ -15,17 +15,11 @@ extern FILE *fout01, *fout02;
 extern FILE *foutcheck1, *foutcheck2;
 
 void yuv2rgb_without_simd(YUV & yuv, RGB & rgb){
-    int tmp;
     for(int iY = 0; iY < yuv.size; iY++){
         int iUV = yuv.getBlockID(iY);
-        tmp = yuv.pY16[iY] + (int)(1.140*(yuv.pV16[iUV] - 128));
-        rgb.pR16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
-        
-        tmp = yuv.pY16[iY] + (int)(-0.394*(yuv.pU16[iUV] - 128) - 0.518*(yuv.pV16[iUV] - 128));
-        rgb.pG16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
-        
-        tmp = yuv.pY16[iY] + (int)(2.032*(yuv.pU16[iUV] - 128));
-        rgb.pB16[iY] = tmp < 0 ? 0 : (tmp > 255 ? 255 : tmp);
+        rgb.pR16[iY] = yuv.pY16[iY] + (int)(1.140*(yuv.pV16[iUV] - 128));
+        rgb.pG16[iY] = yuv.pY16[iY] + (int)(-0.394*(yuv.pU16[iUV] - 128) - 0.518*(yuv.pV16[iUV] - 128));
+        rgb.pB16[iY] = yuv.pY16[iY] + (int)(2.032*(yuv.pU16[iUV] - 128));
     }
 }
 
