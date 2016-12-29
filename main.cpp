@@ -15,7 +15,6 @@ extern const int WIDTH;
 extern const int HEIGHT;
 extern const int SIZE;
 
-//extern int mode;
 extern const char infile1[20];
 extern const char infile2[20];
 extern const char outfile01[20];
@@ -33,7 +32,7 @@ FILE *fout01, *fout02;
 FILE *fout11, *fout12;
 FILE *fout21, *fout22;
 FILE *fout31, *fout32;
-FILE *foutcheck;
+FILE *foutcheck1, *foutcheck2;
 
 //#define RESERVE
 
@@ -120,19 +119,28 @@ int main(int argc, char* argv[])
     }
 
     
-    if((foutcheck = fopen("output/check.bmp", "wb")) == NULL){
+    if((foutcheck1 = fopen("output/check1.bmp", "wb")) == NULL){
         cout << "OUTPUT FILE checkfile ERROR." << endl;
         return -1;
     }
+    if((foutcheck2 = fopen("output/check2.bmp", "wb")) == NULL){
+        cout << "OUTPUT FILE checkfile ERROR." << endl;
+        return -1;
+    }
+
     
     cout << "Start Making Films..." << endl;
   
 #ifndef RESERVE
-    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
+    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
 #endif
-    process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
-    process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
-    process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+    //process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
+    //process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+    process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
+    process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+    process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
+    process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
 
     cout << "\nFilms have made! Enjoy them!\nBye~\n" << endl;
 
