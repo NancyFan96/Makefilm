@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
     
     cout << "Start Making Films..." << endl;
     
-    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
+    //process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2);

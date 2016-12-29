@@ -22,16 +22,16 @@ const int SIZE = WIDTH * HEIGHT;
 const int BLOCK_IN_WIDTH = WIDTH/2;
 
 //int mode = 0;
-const char infile1[20] = "dem1.yuv";
-const char infile2[20] = "dem2.yuv";
-const char outfile01[20] = "alpha0-1.yuv";
-const char outfile02[20] = "alpha0-2.yuv";
-const char outfile11[20] = "alpha1-1.yuv";
-const char outfile12[20] = "alpha1-2.yuv";
-const char outfile21[20] = "alpha2-1.yuv";
-const char outfile22[20] = "alpha2-2.yuv";
-const char outfile31[20] = "alpha3-1.yuv";
-const char outfile32[20] = "alpha3-2.yuv";
+const char infile1[20] = "input/dem1.yuv";
+const char infile2[20] = "input/dem2.yuv";
+const char outfile01[20] = "output/alpha0-1.yuv";
+const char outfile02[20] = "output/alpha0-2.yuv";
+const char outfile11[20] = "output/alpha1-1.yuv";
+const char outfile12[20] = "output/alpha1-2.yuv";
+const char outfile21[20] = "output/alpha2-1.yuv";
+const char outfile22[20] = "output/alpha2-2.yuv";
+const char outfile31[20] = "output/alpha3-1.yuv";
+const char outfile32[20] = "output/alpha3-2.yuv";
 
 
 int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2);
