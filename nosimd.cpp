@@ -62,8 +62,7 @@ void rgb2yuv_without_simd(YUV & yuv, RGB & rgb){
                 iUV++;
             }
         }
-    }// get one picture
-
+     }// get one picture
 }
 
 int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, bool mode){
@@ -74,7 +73,8 @@ int process_without_simd(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_
     clock_t core_time = clock();
 
     yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
-    if(mode)    yuv2rgb_without_simd(DEM2_YUV, CHECK_RGB2);
+    if(mode)
+        yuv2rgb_without_simd(DEM2_YUV, CHECK_RGB2);
 
     CHECK_RGB1.write(foutcheck1);
     

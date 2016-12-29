@@ -46,10 +46,10 @@ void YUV::u8_to_s16() const {
 
 void YUV::s16_to_u8() const {
     for (int i = 0; i < size; i++) {
-        this->pY8[i] = (int8_t)(this->pY16[i]);
+        this->pY8[i] = format(this->pY16[i]);
     }
     for (int i = 0; i < (size >> 2); i++) {
-        this->pU8[i] = (int8_t)(this->pU16[i]);
-        this->pV8[i] = (int8_t)(this->pV16[i]);
+        this->pU8[i] = format(this->pU16[i]);
+        this->pV8[i] = format(this->pV16[i]);
     }
 }
