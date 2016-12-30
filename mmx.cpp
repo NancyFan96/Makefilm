@@ -16,7 +16,7 @@
 using namespace std;
 
 extern FILE *fout11, *fout12;
-extern FILE *foutcheck1, foutcheck2;
+extern FILE *foutcheck1, *foutcheck2;
 
 extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
 extern void blending_without_simd(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, const int A, const bool mode);
@@ -187,16 +187,25 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
     }
     else{
         for(int i = 0; i < nloop; i++){
+            //tmp1 = _mm_mullo_pi16(RR1[i], alpha64);
+            //RR[i] = _mm_srli_pi16(tmp1, 8);
+
             tmp1 = _mm_slli_pi16(RR1[i], 2);
             tmp2 = _mm_slli_pi16(alpha64, 6);
             RR[i] = _mm_mulhi_pi16(tmp1, tmp2);
         }
         for(int i = 0; i < nloop; i++){
+            //tmp1 = _mm_mullo_pi16(GG1[i], alpha64);
+            //GG[i] = _mm_srli_pi16(tmp1, 8);
+
             tmp1 = _mm_slli_pi16(GG1[i], 2);
             tmp2 = _mm_slli_pi16(alpha64, 6);
             GG[i] = _mm_mulhi_pi16(tmp1, tmp2);
         }
         for(int i = 0; i < nloop; i++){
+            //tmp1 = _mm_mullo_pi16(BB1[i], alpha64);
+            //BB[i] = _mm_srli_pi16(tmp1, 8);
+
             tmp1 = _mm_slli_pi16(BB1[i], 2);
             tmp2 = _mm_slli_pi16(alpha64, 6);
             BB[i] = _mm_mulhi_pi16(tmp1, tmp2);
@@ -282,8 +291,6 @@ void rgb2yuv_with_mmx(YUV & yuv, const RGB & rgb){
 
 
 int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, const bool mode){
-    _mm_empty();
-    
     clock_t begin_time = clock();
     clock_t total_time = 0;
 
@@ -292,10 +299,12 @@ int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     cout << "\nMMX..." << endl;
     clock_t core_time = clock();
     
-    _mm_empty();
     
     yuv2rgb_with_mmx(DEM1_YUV, CHECK_RGB1);
     if(mode)    yuv2rgb_with_mmx(DEM2_YUV, CHECK_RGB2);
+    
+    CHECK_RGB1.write(foutcheck2);
+    
     
     for (int A = 1; A < 256; A += 3) {
         //blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
@@ -322,8 +331,6 @@ int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
         cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
         cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
     }
-    
-    _mm_empty();
     
     return 0;
 }

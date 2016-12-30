@@ -34,7 +34,7 @@ FILE *fout21, *fout22;
 FILE *fout31, *fout32;
 FILE *foutcheck1, *foutcheck2;
 
-//#define RESERVE
+#define RESERVE
 
 void help()
 {
@@ -135,9 +135,9 @@ int main(int argc, char* argv[])
 #ifndef RESERVE
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+#endif
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
-#endif 
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
 /*

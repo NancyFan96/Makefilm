@@ -15,7 +15,7 @@
 using namespace std;
 
 extern FILE *fout31, *fout32;
-extern FILE *foutcheck1, foutcheck2;
+extern FILE *foutcheck1, *foutcheck2;
 
 extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
 extern void blending_without_simd(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, const int A, const bool mode);
