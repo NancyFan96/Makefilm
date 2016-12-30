@@ -34,7 +34,7 @@ FILE *fout21, *fout22;
 FILE *fout31, *fout32;
 FILE *foutcheck1, *foutcheck2;
 
-//#define RESERVE
+#define RESERVE
 
 void help()
 {
@@ -73,14 +73,15 @@ int main(int argc, char* argv[])
         return -1;
     }
     DEM1_YUV.read(fin1);
-    pclose(fin1);
+    fclose(fin1);
 
     if((fin2 = fopen(infile2, "rb")) == NULL){
         cout << "INPUT FILE dem2.yuv ERROR." << endl;
         return -1;
     }
     DEM2_YUV.read(fin2);
-    pclose(fin2);
+    fclose(fin2);
+    
 #ifndef RESERVE
     if((fout01 = fopen(outfile01, "wb")) == NULL){
         cout << "OUTPUT FILE 01 ERROR." << endl;
@@ -133,10 +134,10 @@ int main(int argc, char* argv[])
   
 #ifndef RESERVE
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
-    //process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+    process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
 #endif
-    //process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
-    //process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+    process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
+    process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
  /*
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);

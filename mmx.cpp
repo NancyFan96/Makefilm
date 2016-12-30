@@ -19,10 +19,10 @@ using namespace std;
 extern FILE *fout11, *fout12;
 extern FILE *foutcheck1, foutcheck2;
 
-/* YUV2RGB
+/*
  * R = 1.164383 * (Y - 16) + 1.596027*(V - 128)
- * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
  * G = 1.164383 * (Y - 16) – 0.391762*(U - 128) – 0.812968*(V - 128)
+ * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
  */
 // const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
 const __m64 YConst16 = _mm_set_pi16(16, 16, 16, 16);
@@ -30,12 +30,13 @@ const __m64 UVConst128 = _mm_set_pi16(128, 128, 128, 128);
 const int16_t YUV2R[3] = {(int16_t)0.164383*(1<<16),                         0, (int16_t)(0.596027*(1<<16))};
 const int16_t YUV2G[3] = {(int16_t)0.164383*(1<<16), (int16_t)(-0.391762*(1<<16)), (int16_t)(-0.812968*(1<<16))};
 const int16_t YUV2B[3] = {(int16_t)0.164383*(1<<16),  (int16_t)(0.017232*(1<<16)),                         0};
-const __m64 V2R = _mm_set_pi16(YUV2R[2], YUV2R[2], YUV2R[2], YUV2R[2]);       // 0.140
-const __m64 U2G = _mm_set_pi16(YUV2G[1], YUV2G[1], YUV2G[1], YUV2G[1]);       //-0.394
-const __m64 V2G = _mm_set_pi16(YUV2G[2], YUV2G[2], YUV2G[2], YUV2G[2]);       //-0.518
-const __m64 U2B = _mm_set_pi16(YUV2B[1], YUV2B[1], YUV2B[1], YUV2B[1]);       // 0.032
+const __m64 Y2RGB = _mm_set_pi16(YUV2R[0], YUV2R[0], YUV2R[0], YUV2R[0]);       // 0.164383
+const __m64 V2R = _mm_set_pi16(YUV2R[2], YUV2R[2], YUV2R[2], YUV2R[2]);         // 0.596027
+const __m64 U2G = _mm_set_pi16(YUV2G[1], YUV2G[1], YUV2G[1], YUV2G[1]);         //-0.391762
+const __m64 V2G = _mm_set_pi16(YUV2G[2], YUV2G[2], YUV2G[2], YUV2G[2]);         //-0.812968
+const __m64 U2B = _mm_set_pi16(YUV2B[1], YUV2B[1], YUV2B[1], YUV2B[1]);         // 0.017232
 
-/* RGB2YUV
+/* 
  * Y= 0.256788*R + 0.504129*G + 0.097906*B + 16
  * U= -0.148223*R - 0.290993*G + 0.439216*B + 128
  * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
@@ -53,10 +54,15 @@ const __m64 R2V = _mm_set_pi16(RGB2V[0], RGB2V[0], RGB2V[0], RGB2V[0]);         
 const __m64 G2V = _mm_set_pi16(RGB2V[1], RGB2V[1], RGB2V[1], RGB2V[1]);         //-0.515
 const __m64 B2V = _mm_set_pi16(RGB2V[2], RGB2V[2], RGB2V[2], RGB2V[2]);         //-0.100
 
-/*************** YUV2RGB ****************/
-// const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
-// V->R, U,V->G, U->B
-void yuv2rgb_with_mmx(YUV & yuv, RGB & rgb){
+/*
+ * YUV2RGB
+ * R = 1.164383 * (Y - 16) + 1.596027*(V - 128)
+ * G = 1.164383 * (Y - 16) – 0.391762*(U - 128) – 0.812968*(V - 128)
+ * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
+ * const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
+ * V->R, U,V->G, U->B
+ */
+void yuv2rgb_with_mmx(const YUV & yuv, RGB & rgb){
     __m64 tmp, tmpU, tmpV;
     __m64 * dstR = (__m64*) rgb.pB16;
     __m64 * dstG = (__m64*) rgb.pG16;
@@ -87,9 +93,13 @@ void yuv2rgb_with_mmx(YUV & yuv, RGB & rgb){
         
         tmp = _mm_add_pi16(tmp, Yp16[i]);
         tmp = _mm_sub_pi16(tmp, YConst16);
-        dstR[i] = _mm_add_pi16(dstR[i], tmp);       // R = Y + ...
-        dstG[i] = _mm_add_pi16(dstG[i], tmp);       // G = Y + ...
-        dstB[i] = _mm_add_pi16(dstB[i], tmp);       // B = Y + ...
+        dstR[i] = _mm_add_pi16(dstR[i], tmp);       // R = (Y - 16) + ...
+        dstG[i] = _mm_add_pi16(dstG[i], tmp);       // G = (Y - 16) + ...
+        dstB[i] = _mm_add_pi16(dstB[i], tmp);       // B = (Y - 16) + ...
+        tmp = _mm_mulhi_pi16(tmp, Y2RGB);
+        dstR[i] = _mm_add_pi16(dstR[i], tmp);       // R = 1.164383 * (Y - 16) + ...
+        dstG[i] = _mm_add_pi16(dstG[i], tmp);       // G = 1.164383 * (Y - 16) + ...
+        dstB[i] = _mm_add_pi16(dstB[i], tmp);       // B = 1.164383 * (Y - 16) + ...
         
         // Get R
         tmpV = _mm_sub_pi16(Vp16[i], UVConst128);     // (V-128)
@@ -113,14 +123,20 @@ void yuv2rgb_with_mmx(YUV & yuv, RGB & rgb){
     rgb.write(foutcheck1);
 }
 
-/*************** Blending ****************/
-// 256 = 1 << 8
-void blending_with_mmx(RGB & rgb1, RGB & rgb2, int A, bool mode){
+/*
+ * Blending
+ */
+void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, const int A, const bool mode){
+    __m64 *RR = (__m64 *)rgb_blending.pR16;
+    __m64 *GG = (__m64 *)rgb_blending.pG16;
+    __m64 *BB = (__m64 *)rgb_blending.pB16;
+
     __m64 *RR1 = (__m64 *)rgb1.pR16;
     __m64 *GG1 = (__m64 *)rgb1.pG16;
     __m64 *BB1 = (__m64 *)rgb1.pB16;
     __m64 alpha64 = _mm_set_pi16((int16_t)A, (int16_t)A, (int16_t)A, (int16_t)A);
     int64_t nloop = rgb1.size >> 2;
+    __m64 tmp;
 
     if(mode){
         __m64 *RR2 = (__m64 *)rgb2.pR16;
@@ -128,43 +144,47 @@ void blending_with_mmx(RGB & rgb1, RGB & rgb2, int A, bool mode){
         __m64 *BB2 = (__m64 *)rgb2.pB16;
         int _A = 256 - A;
         __m64 _alpha64 = _mm_set_pi16((int16_t)_A, (int16_t)_A, (int16_t)_A, (int16_t)_A);
-        __m64 tmp;
         for(int i = 0; i < nloop; i++){
-            RR1[i] = _mm_mullo_pi16(RR1[i], alpha64);
-            RR1[i] = _mm_srli_pi16(RR1[i], 8);
+            tmp = _mm_mullo_pi16(RR1[i], alpha64);
+            RR[i] = _mm_srli_pi16(tmp, 8);
             tmp = _mm_mullo_pi16(RR2[i], _alpha64);
             tmp = _mm_srli_pi16(tmp, 8);
-            RR1[i] = _mm_add_pi16(RR1[i], tmp);
+            RR[i] = _mm_add_pi16(RR[i], tmp);
             
-            GG1[i] = _mm_mullo_pi16(GG1[i], alpha64);
-            GG1[i] = _mm_srli_pi16(GG1[i], 8);
+            tmp = _mm_mullo_pi16(GG1[i], alpha64);
+            GG[i] = _mm_srli_pi16(tmp, 8);
             tmp = _mm_mullo_pi16(GG2[i], _alpha64);
             tmp = _mm_srli_pi16(tmp, 8);
-            GG1[i] = _mm_add_pi16(GG1[i], tmp);
+            GG[i] = _mm_add_pi16(GG[i], tmp);
             
-            BB1[i] = _mm_mullo_pi16(BB1[i], alpha64);
-            BB1[i] = _mm_srli_pi16(BB1[i], 8);
+            tmp = _mm_mullo_pi16(BB1[i], alpha64);
+            BB[i] = _mm_srli_pi16(tmp, 8);
             tmp = _mm_mullo_pi16(BB2[i], _alpha64);
             tmp = _mm_srli_pi16(tmp, 8);
-            BB1[i] = _mm_add_pi16(BB1[i], tmp);
+            BB[i] = _mm_add_pi16(BB[i], tmp);
         }
     }
     else{
         for(int i = 0; i < nloop; i++){
-            RR1[i] = _mm_mullo_pi16(RR1[i], alpha64);
-            RR1[i] = _mm_srli_pi16(RR1[i], 8);
+            tmp = _mm_mullo_pi16(RR1[i], alpha64);
+            RR[i] = _mm_srli_pi16(tmp, 8);
             
-            GG1[i] = _mm_mullo_pi16(GG1[i], alpha64);
-            GG1[i] = _mm_srli_pi16(GG1[i], 8);
+            tmp = _mm_mullo_pi16(GG1[i], alpha64);
+            GG[i] = _mm_srli_pi16(tmp, 8);
             
-            BB1[i] = _mm_mullo_pi16(BB1[i], alpha64);
-            BB1[i] = _mm_srli_pi16(BB1[i], 8);
+            tmp = _mm_mullo_pi16(BB1[i], alpha64);
+            BB[i] = _mm_srli_pi16(tmp, 8);
         }
     }
 }
 
-/*************** RGB2YUV ****************/
-void rgb2yuv_with_mmx(YUV & yuv, RGB & rgb){
+/* 
+ * RGB2YUV
+ * Y= 0.256788*R + 0.504129*G + 0.097906*B + 16
+ * U= -0.148223*R - 0.290993*G + 0.439216*B + 128
+ * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
+ */
+void rgb2yuv_with_mmx(YUV & yuv, const RGB & rgb){
     int64_t nloop = yuv.size >> 2;
     __m64 * dstY = (__m64*) yuv.pY16;
     __m64 * dstU = (__m64*) yuv.pU16;
@@ -231,10 +251,12 @@ void rgb2yuv_with_mmx(YUV & yuv, RGB & rgb){
 }
 
 
-int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, bool mode){
+int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, const bool mode){
     clock_t begin_time = clock();
     clock_t total_time = 0;
 
+    RGB rgb_blending = RGB(DEM1_YUV.width, DEM1_YUV.height);
+    
     cout << "\nMMX..." << endl;
     clock_t core_time = clock();
     
@@ -243,28 +265,29 @@ int process_with_mmx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB1
     if(mode)    yuv2rgb_with_mmx(DEM2_YUV, CHECK_RGB2);
     
     for (int A = 1; A < 256; A += 3) {
-        blending_with_mmx(CHECK_RGB1, CHECK_RGB2, A, mode);
-        rgb2yuv_with_mmx(OUT_YUV, CHECK_RGB1);
+        blending_with_mmx(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
+        rgb2yuv_with_mmx(OUT_YUV, rgb_blending);
         
         total_time += clock() - core_time;
         core_time = clock();
-        OUT_YUV.write(fout11);
+        
+        if(mode)
+            OUT_YUV.write(fout12);
+        else
+            OUT_YUV.write(fout11);
     }// process end
-    fclose(fout11);
-    fclose(foutcheck1);
-
+    if(mode)    fclose(fout12);
+    else    fclose(fout11);
     
-    cout << "Alpha Blending with dem1.yuv, output file is \"alpha1-1.yuv\":" <<endl;
-    cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
-    cout << "Total run time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
-    
-    
- /*
-    cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha0-2.yuv\":" <<endl;
-    cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
-    cout << "Total run time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
-
-   */
+    if(mode){
+        cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha1-2.yuv\":" <<endl;
+        cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
+        cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
+    }else{
+        cout << "Alpha Blending with dem1.yuv, output file is \"alpha1-1.yuv\":" <<endl;
+        cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
+        cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
+    }
     
     _mm_empty();
     
