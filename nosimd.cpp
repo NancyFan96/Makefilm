@@ -21,6 +21,7 @@ extern FILE *foutcheck1, *foutcheck2;
  * B = 1.164383 * (Y - 16) + 2.017232*(U - 128)
  */
 void yuv2rgb_without_simd(const YUV& yuv, RGB& rgb) {
+    yuv.u8_to_s16();
 	for (int iY = 0; iY < yuv.size; iY++) {
 		int iUV = yuv.getBlockID(iY);
 		rgb.pR16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (1.596027 * (yuv.pV16[iUV] - 128));
@@ -77,6 +78,7 @@ void rgb2yuv_without_simd(YUV& yuv, const RGB& rgb) {
 			}
 		}
 	}// get one picture
+    yuv.s16_to_u8();
 }
 
 int process_without_simd(YUV& OUT_YUV, const YUV& DEM1_YUV, const YUV& DEM2_YUV, RGB& CHECK_RGB1, RGB& CHECK_RGB2, const bool mode) {

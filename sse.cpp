@@ -109,7 +109,7 @@ void yuv2rgb_with_sse(const YUV & yuv, RGB & rgb){
 
     }
     rgb.round();
-    
+    rgb.s32_to_u8();
     _mm_empty();
 }
 
@@ -294,11 +294,17 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     clock_t core_time = clock();
     
     _mm_empty();
+    //yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
     yuv2rgb_with_sse(DEM1_YUV, CHECK_RGB1);
     if(mode)    yuv2rgb_with_sse(DEM2_YUV, CHECK_RGB2);
     
+    CHECK_RGB1.write(foutcheck1);
+    
     for (int A = 1; A < 256; A += 3) {
+        //blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
         blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
+
+        //rgb2yuv_without_simd(OUT_YUV, rgb_blending);
         rgb2yuv_with_sse(OUT_YUV, rgb_blending);
         
         total_time += clock() - core_time;

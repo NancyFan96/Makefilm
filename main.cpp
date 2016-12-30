@@ -91,7 +91,6 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 02 ERROR." << endl;
         return -1;
     }
-#endif
     if((fout11 = fopen(outfile11, "wb")) == NULL){
         cout << "OUTPUT FILE 11 ERROR." << endl;
         return -1;
@@ -100,6 +99,7 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 12 ERROR." << endl;
         return -1;
     }
+#endif
 
     if((fout21 = fopen(outfile21, "wb")) == NULL){
         cout << "OUTPUT FILE 21 ERROR." << endl;
@@ -135,9 +135,9 @@ int main(int argc, char* argv[])
 #ifndef RESERVE
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
-#endif
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
+#endif
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
 /*
