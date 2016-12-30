@@ -38,14 +38,22 @@ void blending_without_simd(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb
         int _A = 256 - A;
         for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pR16[iY] = (A * rgb1.pR16[iY] + _A * rgb2.pR16[iY]) >> 8;
+        }
+        for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pG16[iY] = (A * rgb1.pG16[iY] + _A * rgb2.pG16[iY]) >> 8;
+        }
+        for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pB16[iY] = (A * rgb1.pB16[iY] + _A * rgb2.pB16[iY]) >> 8;
         }
     }
     else{
         for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pR16[iY] = ((uint16_t)A * rgb1.pR16[iY]) >> 8;
+        }
+        for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pG16[iY] = ((uint16_t)A * rgb1.pG16[iY]) >> 8;
+        }
+        for(int iY = 0; iY < rgb1.size; iY++){
             rgb_blending.pB16[iY] = ((uint16_t)A * rgb1.pB16[iY]) >> 8;
         }
     }

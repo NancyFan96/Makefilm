@@ -160,13 +160,15 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
             tmp = _mm_mullo_pi16(RR2[i], _alpha64);
             tmp = _mm_srli_pi16(tmp, 8);
             RR[i] = _mm_add_pi16(RR[i], tmp);
-            
+        }
+        for(int i = 0; i < nloop; i++){
             tmp = _mm_mullo_pi16(GG1[i], alpha64);
             GG[i] = _mm_srli_pi16(tmp, 8);
             tmp = _mm_mullo_pi16(GG2[i], _alpha64);
             tmp = _mm_srli_pi16(tmp, 8);
             GG[i] = _mm_add_pi16(GG[i], tmp);
-            
+        }
+        for(int i = 0; i < nloop; i++){
             tmp = _mm_mullo_pi16(BB1[i], alpha64);
             BB[i] = _mm_srli_pi16(tmp, 8);
             tmp = _mm_mullo_pi16(BB2[i], _alpha64);
@@ -178,10 +180,12 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         for(int i = 0; i < nloop; i++){
             tmp = _mm_mullo_pi16(RR1[i], alpha64);
             RR[i] = _mm_srli_pi16(tmp, 8);
-            
+        }
+        for(int i = 0; i < nloop; i++){
             tmp = _mm_mullo_pi16(GG1[i], alpha64);
             GG[i] = _mm_srli_pi16(tmp, 8);
-            
+        }
+        for(int i = 0; i < nloop; i++){
             tmp = _mm_mullo_pi16(BB1[i], alpha64);
             BB[i] = _mm_srli_pi16(tmp, 8);
         }

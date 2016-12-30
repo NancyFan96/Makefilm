@@ -34,7 +34,7 @@ FILE *fout21, *fout22;
 FILE *fout31, *fout32;
 FILE *foutcheck1, *foutcheck2;
 
-#define RESERVE
+//#define RESERVE
 
 void help()
 {
