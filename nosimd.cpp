@@ -27,6 +27,7 @@ void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb){
         rgb.pG16[iY] = 1.164383 * (yuv.pY16[iY] - 16) - 0.391762 * (yuv.pU16[iUV] - 128) - 0.812968*(yuv.pV16[iUV] - 128);
         rgb.pB16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (2.017232*(yuv.pU16[iUV] - 128));
     }
+    rgb.round();
 }
 
 /*

@@ -49,3 +49,14 @@ void RGB::s16_to_u8() const {
         this->pB8[i] = format(this->pB16[i]);
     }
 }
+
+void RGB::round() const{
+    for (int i = 0; i < size; i++) {
+        this->pR16[i] = format(this->pR16[i]);
+    }
+    for (int i = 0; i < (size >> 2); i++) {
+        this->pG16[i] = format(this->pG16[i]);
+        this->pB16[i] = format(this->pB16[i]);
+    }
+
+}
