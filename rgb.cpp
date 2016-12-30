@@ -62,6 +62,21 @@ void RGB::s32_to_u8() const {
     }
 }
 
+void RGB::update_32_16() const{
+    for (int i = 0; i < size; i++) {
+        this->pR16[i] = (int16_t)(this->pR32[i]);
+        this->pG16[i] = (int16_t)(this->pG32[i]);
+        this->pB16[i] = (int16_t)(this->pB32[i]);
+    }
+}
+void RGB::update_16_32() const{
+    for (int i = 0; i < size; i++) {
+        this->pR32[i] = (int32_t)(this->pR16[i]);
+        this->pG32[i] = (int32_t)(this->pG16[i]);
+        this->pB32[i] = (int32_t)(this->pB16[i]);
+    }
+}
+
 
 void RGB::round() const{
     for (int i = 0; i < size; i++) {

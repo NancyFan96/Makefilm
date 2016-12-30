@@ -29,6 +29,7 @@ void yuv2rgb_without_simd(const YUV& yuv, RGB& rgb) {
 		rgb.pB16[iY] = 1.164383 * (yuv.pY16[iY] - 16) + (2.017232 * (yuv.pU16[iUV] - 128));
 	}
 	rgb.round();
+    rgb.update_16_32();
 }
 
 /*
@@ -58,6 +59,7 @@ void blending_without_simd(RGB& rgb_blending, const RGB& rgb1, const RGB& rgb2, 
 			rgb_blending.pB16[iY] = ((uint16_t)A * rgb1.pB16[iY]) >> 8;
 		}
 	}
+    rgb_blending.update_16_32();
 }
 
 /* 

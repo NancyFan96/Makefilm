@@ -68,6 +68,8 @@ public:
     void s16_to_u8() const;
     void u8_to_s32() const;
     void s32_to_u8() const;
+    void update_32_16() const;
+    void update_16_32() const;
     void round() const;
 
 	/* Only for debug. Write 16bits data to a txt file. */

@@ -110,6 +110,7 @@ void yuv2rgb_with_sse(const YUV & yuv, RGB & rgb){
     }
     rgb.round();
     rgb.s32_to_u8();
+    rgb.update_32_16();
     _mm_empty();
 }
 
@@ -198,6 +199,7 @@ void blending_with_sse(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         }
 
     }
+    rgb_blending.update_32_16();
 
 }
 
@@ -208,9 +210,9 @@ void blending_with_sse(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
  * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
  */
 void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
-    int16_t * supR = new int16_t[yuv.size >> 2];
-    int16_t * supG = new int16_t[yuv.size >> 2];
-    int16_t * supB = new int16_t[yuv.size >> 2];
+    int32_t * supR = new int32_t[yuv.size >> 2];
+    int32_t * supG = new int32_t[yuv.size >> 2];
+    int32_t * supB = new int32_t[yuv.size >> 2];
     // Supress RGB to match U/V
     for(int row = 0, iUV = 0; row < yuv.height; row += 2){
         for(int col = 0; col < yuv.width; col += 2, iUV++){
@@ -225,7 +227,7 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
     
     __m128 * srcRR = (__m128*) supR;
     __m128 * srcGG = (__m128*) supG;
-    __m128 * srcBG = (__m128*) supB;
+    __m128 * srcBB = (__m128*) supB;
 
     __m128 * dstY = (__m128*) yuv.pY32;
     __m128 * dstU = (__m128*) yuv.pU32;
@@ -258,22 +260,27 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
     
     int64_t nloopUV = yuv.size >> 4;
     for(int i = 0; i < nloopUV; i++){
+        srcRR[i] = _mm_cvtepi32_ps(srcRR[i]);
+        srcGG[i] = _mm_cvtepi32_ps(srcGG[i]);
+        srcBB[i] = _mm_cvtepi32_ps(srcBB[i]);
+
+        
         dstU[i] = _mm_setzero_ps();
-        tmp = _mm_mul_ps(srcR[i], R2U_s);
+        tmp = _mm_mul_ps(srcRR[i], R2U_s);
         dstU[i] = _mm_add_ps(dstU[i], tmp);
-        tmp = _mm_mul_ps(srcG[i], G2U_s);
+        tmp = _mm_mul_ps(srcGG[i], G2U_s);
         dstU[i] = _mm_add_ps(dstU[i], tmp);
-        tmp = _mm_mul_ps(srcB[i], B2U_s);
+        tmp = _mm_mul_ps(srcBB[i], B2U_s);
         dstU[i] = _mm_add_ps(dstU[i], tmp);
         dstU[i] = _mm_cvtps_epi32(dstU[i]);
 
         
         dstV[i] = _mm_setzero_ps();
-        tmp = _mm_mul_ps(srcR[i], R2V_s);
+        tmp = _mm_mul_ps(srcRR[i], R2V_s);
         dstV[i] = _mm_add_ps(dstV[i], tmp);
-        tmp = _mm_mul_ps(srcG[i], G2V_s);
+        tmp = _mm_mul_ps(srcGG[i], G2V_s);
         dstV[i] = _mm_add_ps(dstV[i], tmp);
-        tmp = _mm_mul_ps(srcB[i], B2V_s);
+        tmp = _mm_mul_ps(srcBB[i], B2V_s);
         dstV[i] = _mm_add_ps(dstV[i], tmp);
         dstV[i] = _mm_cvtps_epi32(dstV[i]);
     }
@@ -294,15 +301,16 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     clock_t core_time = clock();
     
     _mm_empty();
-    //yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
-    yuv2rgb_with_sse(DEM1_YUV, CHECK_RGB1);
-    if(mode)    yuv2rgb_with_sse(DEM2_YUV, CHECK_RGB2);
+    yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
+    //yuv2rgb_with_sse(DEM1_YUV, CHECK_RGB1);
+    if(mode)
+        yuv2rgb_without_simd(DEM2_YUV, CHECK_RGB2);
+        //yuv2rgb_with_sse(DEM2_YUV, CHECK_RGB2);
     
     CHECK_RGB1.write(foutcheck1);
     
     for (int A = 1; A < 256; A += 3) {
-        //blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
-        blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
+         blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
 
         //rgb2yuv_without_simd(OUT_YUV, rgb_blending);
         rgb2yuv_with_sse(OUT_YUV, rgb_blending);
