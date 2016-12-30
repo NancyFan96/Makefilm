@@ -62,6 +62,10 @@ public:
         delete[] pY16;
         delete[] pU16;
         delete[] pV16;
+        delete[] pY32;
+        delete[] pU32;
+        delete[] pV32;
+
     }
     
     void read(FILE* fp) const;

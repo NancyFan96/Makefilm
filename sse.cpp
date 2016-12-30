@@ -229,10 +229,6 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
 
     _mm_empty();
     
-    __m128 * srcRR = (__m128*) supR;
-    __m128 * srcGG = (__m128*) supG;
-    __m128 * srcBB = (__m128*) supB;
-
     __m128 * dstY = (__m128*) yuv.pY32;
     __m128 * dstU = (__m128*) yuv.pU32;
     __m128 * dstV = (__m128*) yuv.pV32;
@@ -247,11 +243,11 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
     // Get Y
     for(int i = 0; i < nloop; i++){
         dstY[i] = _mm_setzero_ps();
-        
+
         srcR[i] = _mm_cvtepi32_ps(srcR[i]);
         srcG[i] = _mm_cvtepi32_ps(srcG[i]);
         srcB[i] = _mm_cvtepi32_ps(srcB[i]);
-        
+  
         tmp = _mm_mul_ps(srcR[i], R2Y_s);
         dstY[i] = _mm_add_ps(dstY[i], tmp);
         tmp = _mm_mul_ps(srcG[i], G2Y_s);
@@ -262,6 +258,10 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
         dstY[i] = _mm_cvtps_epi32(dstY[i]);
     }
     
+    __m128 * srcRR = (__m128*) supR;
+    __m128 * srcGG = (__m128*) supG;
+    __m128 * srcBB = (__m128*) supB;
+
     int64_t nloopUV = yuv.size >> 4;
     for(int i = 0; i < nloopUV; i++){
         dstU[i] = _mm_setzero_ps();
@@ -305,7 +305,6 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     cout << "\nSSE..." << endl;
     clock_t core_time = clock();
     
-    _mm_empty();
     yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
     //yuv2rgb_with_sse(DEM1_YUV, CHECK_RGB1);
     if(mode)
@@ -343,7 +342,6 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
         cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
         cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
     }
-    
-    _mm_empty();
+
     return 0;
 }

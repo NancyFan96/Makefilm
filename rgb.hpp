@@ -61,6 +61,9 @@ public:
         delete[] pR16;
         delete[] pG16;
         delete[] pB16;
+        delete[] pR32;
+        delete[] pG32;
+        delete[] pB32;
     }
     
     void write(FILE* fp) const;
