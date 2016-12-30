@@ -17,7 +17,7 @@ class RGB{
 public:
     int32_t width;
     int32_t height;
-    int64_t size;
+	int32_t size;
     uint8_t* pR8;
     uint8_t* pG8;
     uint8_t* pB8;
@@ -54,7 +54,10 @@ public:
     void u8_to_s16() const;
     void s16_to_u8() const;
     void round() const;
-    
+
+	/* Only for debug. Write 16bits data to a txt file. */
+	void write_data_to_file(FILE* fp) const; 
+		
 };
 
 

@@ -13,7 +13,6 @@
 
 void RGB::write(FILE * fp) const{
     s16_to_u8();
-    
     t_BMPfileheader file_header;
     t_BMPinfoheader info_header;
     uint8_t buf[3];
@@ -22,13 +21,15 @@ void RGB::write(FILE * fp) const{
     fwrite(&info_header, sizeof(t_BMPinfoheader), 1, fp);
     for (i = height - 1; i >= 0; i--) {
         for (j = 0; j<width; j++) {
-            buf[0] = pR8[i*width + j];
+            buf[2] = pR8[i*width + j];
             buf[1] = pG8[i*width + j];
-            buf[2] = pB8[i*width + j];
+            buf[0] = pB8[i*width + j];
             fwrite(buf, sizeof(uint8_t), 3, fp);
+
         }
     }
 }
+
 
 void RGB::u8_to_s16() const {
     for (int i = 0; i < size; i++) {
@@ -43,8 +44,6 @@ void RGB::u8_to_s16() const {
 void RGB::s16_to_u8() const {
     for (int i = 0; i < size; i++) {
         this->pR8[i] = format(this->pR16[i]);
-    }
-    for (int i = 0; i < (size >> 2); i++) {
         this->pG8[i] = format(this->pG16[i]);
         this->pB8[i] = format(this->pB16[i]);
     }
@@ -59,4 +58,10 @@ void RGB::round() const{
         this->pB16[i] = format(this->pB16[i]);
     }
 
+}
+
+void RGB::write_data_to_file(FILE* fp) const { 
+	for (auto i = 0; i < size; i++) {
+		fprintf(fp, "%d\t%d\t%d\n", pB16[i], pG16[i], pR16[i]);
+	}
 }
