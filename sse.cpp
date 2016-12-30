@@ -199,6 +199,7 @@ void blending_with_sse(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         }
 
     }
+    rgb_blending.s32_to_u8();
     rgb_blending.update_32_16();
 
 }
@@ -213,6 +214,9 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
     int32_t * supR = new int32_t[yuv.size >> 2];
     int32_t * supG = new int32_t[yuv.size >> 2];
     int32_t * supB = new int32_t[yuv.size >> 2];
+    
+//    rgb.write(foutcheck2);
+    
     // Supress RGB to match U/V
     for(int row = 0, iUV = 0; row < yuv.height; row += 2){
         for(int col = 0; col < yuv.width; col += 2, iUV++){
@@ -220,8 +224,8 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
             supR[iUV] = rgb.pR32[iY];
             supG[iUV] = rgb.pG32[iY];
             supB[iUV] = rgb.pB32[iY];
-        }
-    }
+         }
+     }
 
     _mm_empty();
     
@@ -260,12 +264,14 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
     
     int64_t nloopUV = yuv.size >> 4;
     for(int i = 0; i < nloopUV; i++){
+        dstU[i] = _mm_setzero_ps();
+        dstV[i] = _mm_setzero_ps();
+
         srcRR[i] = _mm_cvtepi32_ps(srcRR[i]);
         srcGG[i] = _mm_cvtepi32_ps(srcGG[i]);
         srcBB[i] = _mm_cvtepi32_ps(srcBB[i]);
 
         
-        dstU[i] = _mm_setzero_ps();
         tmp = _mm_mul_ps(srcRR[i], R2U_s);
         dstU[i] = _mm_add_ps(dstU[i], tmp);
         tmp = _mm_mul_ps(srcGG[i], G2U_s);
@@ -275,7 +281,6 @@ void rgb2yuv_with_sse(YUV & yuv,const RGB & rgb){
         dstU[i] = _mm_cvtps_epi32(dstU[i]);
 
         
-        dstV[i] = _mm_setzero_ps();
         tmp = _mm_mul_ps(srcRR[i], R2V_s);
         dstV[i] = _mm_add_ps(dstV[i], tmp);
         tmp = _mm_mul_ps(srcGG[i], G2V_s);
@@ -310,9 +315,12 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     CHECK_RGB1.write(foutcheck1);
     
     for (int A = 1; A < 256; A += 3) {
-         blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
-
-        //rgb2yuv_without_simd(OUT_YUV, rgb_blending);
+        blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
+        
+        if(A == 253)
+            rgb_blending.write(foutcheck2);
+        
+//        rgb2yuv_without_simd(OUT_YUV, rgb_blending);
         rgb2yuv_with_sse(OUT_YUV, rgb_blending);
         
         total_time += clock() - core_time;
