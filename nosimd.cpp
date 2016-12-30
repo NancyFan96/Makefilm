@@ -92,6 +92,7 @@ int process_without_simd(YUV& OUT_YUV, const YUV& DEM1_YUV, const YUV& DEM2_YUV,
 	if (mode)
 		yuv2rgb_without_simd(DEM2_YUV, CHECK_RGB2);
 
+    
 	for (int A = 1; A < 256; A += 3) {
 		blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
 		rgb2yuv_without_simd(OUT_YUV, rgb_blending);

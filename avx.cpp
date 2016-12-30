@@ -32,13 +32,13 @@ void rgb2yuv_with_avx(YUV & yuv,const RGB & rgb){
 }
 
 
-int process_with_avx(YUV &OUT_YUV, YUV &DEM1_YUV, YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, bool mode){
+int process_with_avx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB1, RGB &CHECK_RGB2, const bool mode){
     clock_t begin_time = clock();
     clock_t total_time = 0;
     
     RGB rgb_blending = RGB(DEM1_YUV.width, DEM1_YUV.height);
     
-    cout << "\nMMX..." << endl;
+    cout << "\nAVX..." << endl;
     clock_t core_time = clock();
     
     _mm_empty();
