@@ -17,14 +17,10 @@ void YUV::read(FILE * fp) const {
     memcpy(pU8,               buf + size, (size >> 2) * sizeof(char));
     memcpy(pV8, buf + size + (size >> 2), (size >> 2) * sizeof(char));
     
-    u8_to_s16();
-    
     delete[] buf;
 }
 
 void YUV::write(FILE * fp) const{
-    s16_to_u8();
-    
     char * buf = new char[size + (size >> 1)];
     memcpy(                     buf, pY8,  size * sizeof(char));
     memcpy(              buf + size, pU8,  (size >> 2) * sizeof(char));
@@ -51,5 +47,25 @@ void YUV::s16_to_u8() const {
     for (int i = 0; i < (size >> 2); i++) {
         this->pU8[i] = format(this->pU16[i]);
         this->pV8[i] = format(this->pV16[i]);
+    }
+}
+
+void YUV::u8_to_s32() const {
+    for (int i = 0; i < size; i++) {
+        this->pY32[i] = (int32_t)this->pY8[i];
+    }
+    for (int i = 0; i < (size >> 2); i++) {
+        this->pU32[i] = (int32_t)this->pU8[i];
+        this->pV32[i] = (int32_t)this->pV8[i];
+    }
+}
+
+void YUV::s32_to_u8() const {
+    for (int i = 0; i < size; i++) {
+        this->pY8[i] = format(this->pY32[i]);
+    }
+    for (int i = 0; i < (size >> 2); i++) {
+        this->pU8[i] = format(this->pU32[i]);
+        this->pV8[i] = format(this->pV32[i]);
     }
 }

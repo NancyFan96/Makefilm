@@ -22,6 +22,15 @@ extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
 extern void blending_without_simd(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, const int A, const bool mode);
 extern void rgb2yuv_without_simd(YUV & yuv,const RGB & rgb);
 
+
+const int16_t YUV2R[3] = {(int16_t)0.164383*(1<<16),                         0, (int16_t)(0.596027*(1<<16))};
+const int16_t YUV2G[3] = {(int16_t)0.164383*(1<<16), (int16_t)(-0.391762*(1<<16)), (int16_t)(-0.812968*(1<<16))};
+const int16_t YUV2B[3] = {(int16_t)0.164383*(1<<16),  (int16_t)(0.017232*(1<<16)),                         0};
+
+const int16_t RGB2Y[3] = {(int16_t)(0.256788*(1<<16)), (int16_t)(0.504129*(1<<16)), (int16_t)(0.097906*(1<<16))};
+const int16_t RGB2U[3] = {(int16_t)(-0.148223*(1<<16)), (int16_t)(-0.290993*(1<<16)), (int16_t)(0.439216*(1<<16))};
+const int16_t RGB2V[3] = {(int16_t)(0.439216*(1<<16)), (int16_t)(-0.367788*(1<<16)), (int16_t)(-0.071427*(1<<16))};
+
 /*
  * R = 1.164383 * (Y - 16) + 1.596027*(V - 128)
  * G = 1.164383 * (Y - 16) – 0.391762*(U - 128) – 0.812968*(V - 128)
@@ -30,9 +39,9 @@ extern void rgb2yuv_without_simd(YUV & yuv,const RGB & rgb);
 // const int16_t YUV2RGB_OFFSET[3][3] = {{1, 0, 1},{1, 0, 0},{1, 2, 0}};
 const __m64 YConst16 = _mm_set_pi16(16, 16, 16, 16);
 const __m64 UVConst128 = _mm_set_pi16(128, 128, 128, 128);
-const int16_t YUV2R[3] = {(int16_t)0.164383*(1<<16),                         0, (int16_t)(0.596027*(1<<16))};
-const int16_t YUV2G[3] = {(int16_t)0.164383*(1<<16), (int16_t)(-0.391762*(1<<16)), (int16_t)(-0.812968*(1<<16))};
-const int16_t YUV2B[3] = {(int16_t)0.164383*(1<<16),  (int16_t)(0.017232*(1<<16)),                         0};
+extern const int16_t YUV2R[3];
+extern const int16_t YUV2G[3];
+extern const int16_t YUV2B[3];
 const __m64 Y2RGB = _mm_set_pi16(YUV2R[0], YUV2R[0], YUV2R[0], YUV2R[0]);       // 0.164383
 const __m64 V2R = _mm_set_pi16(YUV2R[2], YUV2R[2], YUV2R[2], YUV2R[2]);         // 0.596027
 const __m64 U2G = _mm_set_pi16(YUV2G[1], YUV2G[1], YUV2G[1], YUV2G[1]);         //-0.391762
@@ -44,9 +53,9 @@ const __m64 U2B = _mm_set_pi16(YUV2B[1], YUV2B[1], YUV2B[1], YUV2B[1]);         
  * U= -0.148223*R - 0.290993*G + 0.439216*B + 128
  * V= 0.439216*R - 0.367788*G - 0.071427*B + 128
  */
-const int16_t RGB2Y[3] = {(int16_t)(0.256788*(1<<16)), (int16_t)(0.504129*(1<<16)), (int16_t)(0.097906*(1<<16))};
-const int16_t RGB2U[3] = {(int16_t)(-0.148223*(1<<16)), (int16_t)(-0.290993*(1<<16)), (int16_t)(0.439216*(1<<16))};
-const int16_t RGB2V[3] = {(int16_t)(0.439216*(1<<16)), (int16_t)(-0.367788*(1<<16)), (int16_t)(-0.071427*(1<<16))};
+extern const int16_t RGB2Y[3];
+extern const int16_t RGB2U[3];
+extern const int16_t RGB2V[3];
 const __m64 R2Y = _mm_set_pi16(RGB2Y[0], RGB2Y[0], RGB2Y[0], RGB2Y[0]);         // 0.299
 const __m64 G2Y = _mm_set_pi16(RGB2Y[1], RGB2Y[1], RGB2Y[1], RGB2Y[1]);         // 0.587
 const __m64 B2Y = _mm_set_pi16(RGB2Y[2], RGB2Y[2], RGB2Y[2], RGB2Y[2]);         // 0.114
@@ -66,6 +75,7 @@ const __m64 B2V = _mm_set_pi16(RGB2V[2], RGB2V[2], RGB2V[2], RGB2V[2]);         
  * V->R, U,V->G, U->B
  */
 void yuv2rgb_with_mmx(const YUV & yuv, RGB & rgb){
+    yuv.u8_to_s16();
     _mm_empty();
     
     __m64 tmp, tmpY, tmpU, tmpV;
@@ -126,6 +136,7 @@ void yuv2rgb_with_mmx(const YUV & yuv, RGB & rgb){
         dstB[i] = _mm_add_pi16(dstB[i], tmp);
     }
     rgb.round();
+    //rgb.s16_to_u8();
 
     _mm_empty();
 
@@ -285,6 +296,7 @@ void rgb2yuv_with_mmx(YUV & yuv, const RGB & rgb){
         
     }// get one frame - STEP B
 
+    yuv.s16_to_u8();
     _mm_empty();
     
 }

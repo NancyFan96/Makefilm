@@ -34,6 +34,7 @@ const char outfile31[20] = "output/alpha3-1.yuv";
 const char outfile32[20] = "output/alpha3-2.yuv";
 
 
+
 int process_without_simd(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2, const bool mode);
 int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2, const bool mode);
 int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB &CHECK_RGB, RGB &CHECK_RGB2, const bool mode);

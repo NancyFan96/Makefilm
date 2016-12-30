@@ -12,7 +12,6 @@
 
 
 void RGB::write(FILE * fp) const{
-    s16_to_u8();
     t_BMPfileheader file_header;
     t_BMPinfoheader info_header;
     uint8_t buf[3];
@@ -34,8 +33,6 @@ void RGB::write(FILE * fp) const{
 void RGB::u8_to_s16() const {
     for (int i = 0; i < size; i++) {
         this->pR16[i] = (int16_t)this->pR8[i];
-    }
-    for (int i = 0; i < (size >> 2); i++) {
         this->pG16[i] = (int16_t)this->pG8[i];
         this->pB16[i] = (int16_t)this->pB8[i];
     }
@@ -48,6 +45,23 @@ void RGB::s16_to_u8() const {
         this->pB8[i] = format(this->pB16[i]);
     }
 }
+
+void RGB::u8_to_s32() const {
+    for (int i = 0; i < size; i++) {
+        this->pR32[i] = (int32_t)this->pR8[i];
+        this->pG32[i] = (int32_t)this->pG8[i];
+        this->pB32[i] = (int32_t)this->pB8[i];
+    }
+}
+
+void RGB::s32_to_u8() const {
+    for (int i = 0; i < size; i++) {
+        this->pR8[i] = format(this->pR32[i]);
+        this->pG8[i] = format(this->pG32[i]);
+        this->pB8[i] = format(this->pB32[i]);
+    }
+}
+
 
 void RGB::round() const{
     for (int i = 0; i < size; i++) {
