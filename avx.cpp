@@ -78,7 +78,7 @@ void yuv2rgb_with_avx(const YUV & yuv, RGB & rgb){
     
     int64_t nloop = yuv.size >> 3;
     for(int i = 0; i < nloop; i++){
-        int ii = i << 4;
+        int ii = i << 3;
         Yp32[i] = _mm256_set_ps((float)yuv.pY32[ii], (float)yuv.pY32[ii + 1],
                                 (float)yuv.pY32[ii + 2], (float)yuv.pY32[ii + 3],
                                 (float)yuv.pY32[ii + 4], (float)yuv.pY32[ii + 5],
@@ -243,7 +243,7 @@ void rgb2yuv_with_avx(YUV & yuv,const RGB & rgb){
     for(int i = 0; i < nloop; i++){
         dstY[i] = _mm256_setzero_ps();
         
-        int ii = i << 4;
+        int ii = i << 3;
         srcR[i] = _mm256_set_ps((float)rgb.pR32[ii], (float)rgb.pR32[ii + 1],
                                 (float)rgb.pR32[ii + 2], (float)rgb.pR32[ii + 3],
                                 (float)rgb.pR32[ii + 4], (float)rgb.pR32[ii + 5],
@@ -326,19 +326,17 @@ int process_with_avx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     cout << "\nAVX..." << endl;
     clock_t core_time = clock();
     
-    //yuv2rgb_without_simd(DEM1_YUV, CHECK_RGB1);
     yuv2rgb_with_avx(DEM1_YUV, CHECK_RGB1);
-    if(mode)    yuv2rgb_with_avx(DEM2_YUV, CHECK_RGB2);
+    if(mode)
+        yuv2rgb_with_avx(DEM2_YUV, CHECK_RGB2);
     
     CHECK_RGB1.write(foutcheck1);
     
     for (int A = 1; A < 256; A += 3) {
-        //blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
         blending_with_avx(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
         if(A == 253)
             rgb_blending.write(foutcheck2);
         
-        //rgb2yuv_without_simd(OUT_YUV, rgb_blending);
         rgb2yuv_with_avx(OUT_YUV, rgb_blending);
         
         total_time += clock() - core_time;
