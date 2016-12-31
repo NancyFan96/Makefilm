@@ -99,7 +99,6 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 12 ERROR." << endl;
         return -1;
     }
-#endif
 
     if((fout21 = fopen(outfile21, "wb")) == NULL){
         cout << "OUTPUT FILE 21 ERROR." << endl;
@@ -109,6 +108,7 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 22 ERROR." << endl;
         return -1;
     }
+#endif
 
     if((fout31 = fopen(outfile31, "wb")) == NULL){
         cout << "OUTPUT FILE 31 ERROR." << endl;
@@ -137,13 +137,13 @@ int main(int argc, char* argv[])
     process_without_simd(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_mmx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
-#endif
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_sse(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
-/*
+#endif
+
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 0);
     process_with_avx(OUT_YUV, DEM1_YUV, DEM2_YUV, CHECK_RGB, CHECK_RGB2, 1);
-*/
+
     cout << "\nFilms have made! Enjoy them!\nBye~\n" << endl;
 
     

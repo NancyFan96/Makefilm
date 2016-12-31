@@ -61,11 +61,11 @@ int process_with_avx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     else    fclose(fout31);
     
     if(mode){
-        cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha1-2.yuv\":" <<endl;
+        cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha3-2.yuv\":" <<endl;
         cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
         cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
     }else{
-        cout << "Alpha Blending with dem1.yuv, output file is \"alpha1-1.yuv\":" <<endl;
+        cout << "Alpha Blending with dem1.yuv, output file is \"alpha3-1.yuv\":" <<endl;
         cout << "Core function time: " << (double)total_time / CLOCKS_PER_SEC * 1000<< "ms" << endl;
         cout << "Include output time: " << (double)(clock() - begin_time) / CLOCKS_PER_SEC * 1000 << "ms" << endl << endl;
     }
