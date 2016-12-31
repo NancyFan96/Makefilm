@@ -99,7 +99,6 @@ int main(int argc, char* argv[])
         cout << "OUTPUT FILE 12 ERROR." << endl;
         return -1;
     }
-
     if((fout21 = fopen(outfile21, "wb")) == NULL){
         cout << "OUTPUT FILE 21 ERROR." << endl;
         return -1;
@@ -109,6 +108,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 #endif
+    
 
     if((fout31 = fopen(outfile31, "wb")) == NULL){
         cout << "OUTPUT FILE 31 ERROR." << endl;

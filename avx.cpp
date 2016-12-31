@@ -21,6 +21,33 @@ extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
 extern void blending_without_simd(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, const int A, const bool mode);
 extern void rgb2yuv_without_simd(YUV & yuv,const RGB & rgb);
 
+const float YUV2R_s[3] = {1.164383,         0,  1.596027};
+const float YUV2G_s[3] = {1.164383, -0.391762, -0.812968};
+const float YUV2B_s[3] = {1.164383,  2.017232,          0};
+
+const float RGB2Y_s[3] = {0.256788, 0.504129, 0.097906};
+const float RGB2U_s[3] = {-0.148223, -0.290993, 0.439216};
+const float RGB2V_s[3] = {0.439216, -0.367788, -0.071427};
+
+const __m256 Y2RGB_256s = _mm256_set1_ps(YUV2R_s[0]);
+const __m256 V2R_256s = _mm256_set1_ps(YUV2R_s[2]);
+const __m256 U2G_256s = _mm256_set1_ps(YUV2G_s[1]);
+const __m256 V2G_256s = _mm256_set1_ps(YUV2G_s[2]);
+const __m256 U2B_256s = _mm256_set1_ps(YUV2B_s[1]);
+
+const __m256 R2Y_256s = _mm256_set1_ps(RGB2Y_s[0]);
+const __m256 G2Y_256s = _mm256_set1_ps(RGB2Y_s[1]);
+const __m256 B2Y_256s = _mm256_set1_ps(RGB2Y_s[2]);
+const __m256 R2U_256s = _mm256_set1_ps(RGB2U_s[0]);
+const __m256 G2U_256s = _mm256_set1_ps(RGB2U_s[1]);
+const __m256 B2U_256s = _mm256_set1_ps(RGB2U_s[2]);
+const __m256 R2V_256s = _mm256_set1_ps(RGB2V_s[0]);
+const __m256 G2V_256s = _mm256_set1_ps(RGB2V_s[1]);
+const __m256 B2V_256s = _mm256_set1_ps(RGB2V_s[2]);
+
+const __m256 YConst16_256s = _mm256_set1_ps((float)16);
+const __m256 UVConst128_256s = _mm256_set1_ps((float)128);
+
 void yuv2rgb_with_avx(const YUV & yuv, RGB & rgb){
     
 }
