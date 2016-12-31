@@ -11,7 +11,7 @@
 
 using namespace std;
 
-extern FILE *fout01, *fout02;
+extern FILE *fout1, *fout2;
 extern FILE *foutcheck1, *foutcheck2;
 
 /* 
@@ -107,12 +107,12 @@ int process_without_simd(YUV& OUT_YUV, const YUV& DEM1_YUV, const YUV& DEM2_YUV,
 		core_time = clock();
 
 		if (mode)
-			OUT_YUV.write(fout02);
+			OUT_YUV.write(fout2);
 		else
-			OUT_YUV.write(fout01);
+			OUT_YUV.write(fout1);
 	}// process end
-	if (mode) fclose(fout02);
-	else fclose(fout01);
+	if (mode) fclose(fout2);
+	else fclose(fout1);
 
 	if (mode) {
 		cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha0-2.yuv\":" << endl;

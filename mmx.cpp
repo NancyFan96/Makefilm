@@ -15,7 +15,7 @@
 
 using namespace std;
 
-extern FILE *fout11, *fout12;
+extern FILE *fout1, *fout2;
 extern FILE *foutcheck1, *foutcheck2;
 
 extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
@@ -136,7 +136,13 @@ void yuv2rgb_with_mmx(const YUV & yuv, RGB & rgb){
         dstB[i] = _mm_add_pi16(dstB[i], tmp);
     }
     rgb.round();
-    //rgb.s16_to_u8();
+#ifdef DEBUG
+    rgb.s16_to_u8();
+    rgb.update_16_32();
+#endif
+
+    delete [] dupPU16;
+    delete [] dupPV16;
 
     _mm_empty();
 
@@ -155,7 +161,7 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
     __m64 *RR1 = (__m64 *)rgb1.pR16;
     __m64 *GG1 = (__m64 *)rgb1.pG16;
     __m64 *BB1 = (__m64 *)rgb1.pB16;
-    __m64 alpha64 = _mm_set_pi16((int16_t)A, (int16_t)A, (int16_t)A, (int16_t)A);
+    __m64 alpha64 = _mm_set1_pi16((int16_t)A);
     int64_t nloop = rgb_blending.size >> 2;
     __m64 tmp1, tmp2;
 
@@ -164,7 +170,7 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         __m64 *GG2 = (__m64 *)rgb2.pG16;
         __m64 *BB2 = (__m64 *)rgb2.pB16;
         int _A = 256 - A;
-        __m64 _alpha64 = _mm_set_pi16((int16_t)_A, (int16_t)_A, (int16_t)_A, (int16_t)_A);
+        __m64 _alpha64 = _mm_set1_pi16((int16_t)_A);
         for(int i = 0; i < nloop; i++){
             tmp1 = _mm_slli_pi16(RR1[i], 2);
             tmp2 = _mm_slli_pi16(alpha64, 6);
@@ -223,6 +229,11 @@ void blending_with_mmx(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         }
     }
     _mm_empty();
+#ifdef DEBUG
+    rgb_blending.s16_to_u8();
+    rgb_blending.update_16_32();
+#endif
+
 }
 
 /* 
@@ -296,6 +307,10 @@ void rgb2yuv_with_mmx(YUV & yuv, const RGB & rgb){
         
     }// get one frame - STEP B
 
+    delete [] supR;
+    delete [] supG;
+    delete [] supB;
+
     yuv.s16_to_u8();
     _mm_empty();
     
@@ -315,11 +330,8 @@ int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     yuv2rgb_with_mmx(DEM1_YUV, CHECK_RGB1);
     if(mode)    yuv2rgb_with_mmx(DEM2_YUV, CHECK_RGB2);
     
-    CHECK_RGB1.write(foutcheck2);
-    
     
     for (int A = 1; A < 256; A += 3) {
-        //blending_without_simd(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
         blending_with_mmx(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
         rgb2yuv_with_mmx(OUT_YUV, rgb_blending);
         
@@ -327,12 +339,12 @@ int process_with_mmx(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
         core_time = clock();
         
         if(mode)
-            OUT_YUV.write(fout12);
+            OUT_YUV.write(fout2);
         else
-            OUT_YUV.write(fout11);
+            OUT_YUV.write(fout1);
     }// process end
-    if(mode)    fclose(fout12);
-    else    fclose(fout11);
+    if(mode)    fclose(fout2);
+    else    fclose(fout1);
     
     if(mode){
         cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha1-2.yuv\":" <<endl;

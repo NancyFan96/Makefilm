@@ -14,7 +14,7 @@
 
 using namespace std;
 
-extern FILE *fout21, *fout22;
+extern FILE *fout1, *fout2;
 extern FILE *foutcheck1, *foutcheck2;
 
 extern void yuv2rgb_without_simd(const YUV & yuv, RGB & rgb);
@@ -110,8 +110,10 @@ void yuv2rgb_with_sse(const YUV & yuv, RGB & rgb){
 
     }
     rgb.round();
+#ifdef DEBUG
     rgb.s32_to_u8();
     rgb.update_32_16();
+#endif
     
     delete [] dupPU32;
     delete [] dupPV32;
@@ -205,8 +207,10 @@ void blending_with_sse(RGB & rgb_blending, const RGB & rgb1, const RGB & rgb2, c
         }
 
     }
+#ifdef DEBUG
     rgb_blending.s32_to_u8();
     rgb_blending.update_32_16();
+#endif
 
 }
 
@@ -331,26 +335,21 @@ int process_with_sse(YUV &OUT_YUV, const YUV &DEM1_YUV, const YUV &DEM2_YUV, RGB
     if(mode)
         yuv2rgb_with_sse(DEM2_YUV, CHECK_RGB2);
     
-    CHECK_RGB1.write(foutcheck1);
     
     for (int A = 1; A < 256; A += 3) {
         blending_with_sse(rgb_blending, CHECK_RGB1, CHECK_RGB2, A, mode);
-        
-        if(A == 1)
-            rgb_blending.write(foutcheck2);
-        
         rgb2yuv_with_sse(OUT_YUV, rgb_blending);
         
         total_time += clock() - core_time;
         core_time = clock();
         
         if(mode)
-            OUT_YUV.write(fout22);
+            OUT_YUV.write(fout2);
         else
-            OUT_YUV.write(fout21);
+            OUT_YUV.write(fout1);
     }// process end
-    if(mode)    fclose(fout22);
-    else    fclose(fout21);
+    if(mode)    fclose(fout2);
+    else    fclose(fout1);
     
     if(mode){
         cout << "Alpha Blending with dem1.yuv and dem2.yuv, output file is \"alpha2-2.yuv\":" <<endl;
