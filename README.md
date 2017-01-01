@@ -4,29 +4,29 @@
 
 * 1.0 commit: Finish no simd  version
 
-* 2.0 commit: **REALIZE IT**!
+* 2.0 commit: Code refactoring
 
-## TOD
+* 3.0 commit: Add MMX
 
-* MMX
-* SSE
-* AVX
+* 4.0 commit: Add SSE2
+
+* 5.0 commit: Add AVX
+
 
 ## QuikStart
 
 
-This is Lab4.1 of Computer Architecture. I call it "makefilm", mainly because you CAN:
+This is Lab4.1 of Computer Architecture. I call it "makefilm", mainly because you **CAN**:
 
-* Fade in and fade out one image.
-* Create a gradient which overlays two images.
+* Fade in and fade out **ONE** image.
+* Create a gradient which overlays **TWO** images.
 
 
 ### Help info
 
 ```
     Use dem1.yuv, dem1.yuv to process...
-    Usage: ./makefilm <mode>
-           mode [default]: mode 1 and mode 2
+    Usage: ./makefilm     
 ```
 
 
